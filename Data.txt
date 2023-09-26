@@ -1,0 +1,465 @@
+﻿KNN
+data =iris    #data collection
+data
+summary(data)  #explore data
+
+
+#normalize data : convert all attributes in the range of 0-1
+normalize = function(x)    
+{
+  return((x-min(x))/(max(x)-min(x)))
+}
+
+
+data$Sepal.Length = normalize(data$Sepal.Length)
+data$Sepal.Width = normalize(data$Sepal.Width)
+data$Petal.Length = normalize(data$Petal.Length)
+data$Petal.Width = normalize(data$Petal.Width)
+
+
+#shuffle(alternate)
+shuffled_data= data[sample(1:nrow(data)), ]
+
+
+#90% put to training
+da= sample(1:nrow(data), size=nrow(data)*0.9, replace=FALSE, prob =NULL)
+training_data = data[da,]
+training_data
+
+
+#10% to testing
+test_data=data[-da,]
+test_data
+
+
+summary(training_data)
+summary(test_data)
+
+
+test_label=test_data[,5]  #take only 5th column of the test data
+test_data=test_data[-5]   #get excluding 5th column
+
+
+training_label=training_data[,5]
+training_data = training_data[-5]
+
+
+#model development
+library(class)
+model = knn(training_data, test_data, training_label, k = 11)  
+model
+
+
+install.packages("gmodels")
+CrossTable(x=test_label,y=model)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DECISION TREE
+# Decision Tree
+
+
+#1. Pass the data
+data = iris
+
+
+#2. Shuffle the data
+shuffled_data= data[sample(1:nrow(data)), ]
+
+
+#3. Divide the data into training and testing
+ind = sample(1:nrow(shuffled_data), size = nrow(shuffled_data)*0.9, replace = FALSE, prob = NULL)
+training_data= data[ind,]
+training_data
+test_data=data[-ind,]
+test_data
+test_label=test_data[,5]
+test_data=test_data[-5]
+
+
+#4.developing model
+install.packages("party")
+library(party)
+model = ctree(training_data$Species~.,data=training_data)
+model
+#plot tree
+plot(model)
+
+
+#Alternate: 
+#second method using ctree
+install.packages('rpart')  #install rattle if this doesn't work
+library(rpart)  #call rattle instead
+model=rpart(training_data$Species~., data=training_data) #this will remain the same
+fancyRpartPlot(model)
+
+
+
+
+#6. prediction 
+p= predict(model, test_data) #model=ctree(training_data$Species~.,data=training_data)
+library(gmodels)
+CrossTable(test_label,p)
+
+
+
+
+
+
+#For decision tree, prediction works when the model is ctree. It throws an error when the model is rpart
+
+
+NBC
+install.packages('e1071')
+
+
+#iris dataset
+#implementing naive bayes classification
+#here normalization is not done
+#training data : 95, test data: 5
+data=iris
+ind=sample(1:nrow(data),size=nrow(data)*0.95,replace= FALSE, prob= NULL)
+traing_data =data[ind,]
+test_data=data[-ind,]
+test_data=test_data[,-5]
+ 
+test_label= test_data[,4]
+test_label
+
+
+library(e1071)
+model=naiveBayes(traing_data$Species~.,data=traing_data)
+#. operator indicates all (sepal length, widht, petal length, width)
+model
+
+
+summary(test_data)
+p=predict(model,test_data)
+p
+
+
+
+
+#install gmodels
+library(gmodels)
+CrossTable(p,test_label)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+KMEANS
+#k-means clustering algorithm
+
+
+
+
+getwd()
+#save the file in documents
+
+
+data=read.csv('kmeans.csv')
+data
+
+
+data=data[,-1]  #cut first column
+data
+
+
+model=kmeans(data,centers=3)
+model
+model$cluster
+model$centers
+
+
+#for graph
+plot(data$x,data$y,pch=23)
+
+
+'''
+fviz_cluster(model,data,palette = c("#2E9FDF", "#00AFBB", "#E7B800"), 
+             geom = "point",
+             ellipse.type = "convex", 
+             ggtheme = theme_bw())
+'''
+
+
+data1=iris
+data1=data1[,-5]
+data1
+model1=kmeans(data1,3)
+plot(data1$Sepal.Length,data1$Petal.length, col=model$cluster)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AVERAGE
+library(hclust1d)
+library(sparcl)
+
+
+SINGLE = read.csv("single_link.csv")
+#dist=as.dist(SINGLE)
+
+
+dist = as.dist(SINGLE)
+model <- hclust(dist,method="average")
+plot(model,hang=-1,main="Single Link Clustering")
+cut=cutree(model,3)
+ColorDendrogram(model,cut,branchlength=400)
+labels= c("A","B","C","D","E","F","G")
+# Add labels to the x-axis
+axis(side = 1, at = seq(1, length(labels), by = 1), labels = labels)
+
+
+
+
+
+
+
+
+
+
+COMPLETE
+library(hclust1d)
+library(sparcl)
+
+
+SINGLE = read.csv("single_link.csv")
+#dist=as.dist(SINGLE)
+
+
+dist = as.dist(SINGLE)
+model <- hclust(dist,method="complete")
+plot(model,hang=-1,main="Single Link Clustering")
+cut=cutree(model,3)
+ColorDendrogram(model,cut,branchlength=400)
+labels= c("A","B","C","D","E","F","G")
+# Add labels to the x-axis
+axis(side = 1, at = seq(1, length(labels), by = 1), labels = labels)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SINGLE
+library(hclust1d)
+library(sparcl)
+
+
+SINGLE = read.csv("single_link.csv")
+#dist=as.dist(SINGLE)
+
+
+dist = as.dist(SINGLE)
+model <- hclust(dist,method="single")
+plot(model,hang=-1,main="Single Link Clustering")
+cut=cutree(model,3)
+ColorDendrogram(model,cut,branchlength=400)
+labels= c("A","B","C","D","E","F","G")
+# Add labels to the x-axis
+axis(side = 1, at = seq(1, length(labels), by = 1), labels = labels)
+
+
+
+
+
+
+DBSCAN - APRIORI
+test_data = test_data[,-5]
+
+
+x_cor = c(dim=c(720))
+y_cor = c(dim=c(720))
+
+
+for(i in 1:360)
+{
+  x_cor[i] = 3*cos(i)
+  y_cor[i] = 3*sin(i)
+  
+  x_cor[i+360] = 6*cos(i)
+  y_cor[i+360] = 6*sin(i)
+}
+
+
+plot(x_cor, y_cor)
+
+
+#B) KMeans Clustering using the dataset 
+
+
+data = data.frame(x_cor,y_cor)
+dist_data = dist(data, method='euclidean')
+
+
+model = kmeans(data, 2)
+plot(data$x_cor, data$y_cor, col=model$cluster)
+#when data has a particular pattern, k means may not produce the correct answer
+#here the data is in a pattern, therefore it produces the wrong answer
+
+
+#C)DBSCAN
+#Applying DBSCAN
+install.packages(fpc)
+library(dbscan)
+library(fpc)
+model = dbscan(dist_data, eps=3, MinPts = 3)
+plot(data$x_cor, data$y_cor, col=model$cluster)
+
+
+
+
+#D)Apriori algorithm
+#Apriori Algorithm
+library(arules)
+
+
+data = list(c('A','B','C','D'),
+            c('A','C','D','E','F'),
+            c('A','D','E','M','N'),
+            c('E','F','M','N'),
+            c('A','C','D'),
+            c('A','B','C','D'),
+            c('P','Q','R'),
+            c('A','B','C'),
+            c('A','B','C','P','Q','R'))
+
+
+a= as(data,'transactions')
+
+
+itemFrequencyPlot(a, type='absolute')
+ar=apriori(a,parameter = c(supp=0.3,conf=0.8))
+
+
+#E)Using groceries dataset
+library(datasets)
+a = data("Groceries")
+itemFrequencyPlot(Groceries,type='absolute',topN=20)
+itemFrequencyPlot(Groceries,type='absolute',topN=10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SAMPLE QUESTION
+library(arules)
+
+
+data = list(c('A','B','C','D', 'G', 'H'),
+            c('A','G', 'H', 'F'),
+            c('A','C', 'D', 'K'),
+            c('G', 'M', 'L'),
+            c('A','B','C','D', 'G'),
+            c('A','B','C','S'),
+            c('A','B','G'),
+            c('A','C','D', 'B', 'L'))
+#QUESTION 1: Display the frequency item count (using bar graph)
+a= as(data,'transactions')
+itemFrequencyPlot(a, type='absolute')
+
+
+#QUESTION 2: Display the top 4 most frequent items
+itemFrequencyPlot(a, type='absolute', topN=4)
+
+
+#QUESTION 3: Apply Apriori algorithm to the following data set 
+#(Assume min support count 3 and confidence =85%)
+ar=apriori(a,parameter = c(supp=0.3,conf=0.85))
+ar
+
+
+#QUESTION 4:Display the rules in descending order of confidence
+descending_rules = sort(ar, by="confidence", decreasing = TRUE)
+inspect(descending_rules)
